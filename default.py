@@ -41,6 +41,7 @@ def main_menu():
     add_directory_item('Import Data', {'action': 'import_data'})
     add_directory_item('Search Anime', {'action': 'search'})
     add_directory_item('Ayuda / Cómo configurar', {'action': 'help'})
+    add_directory_item('Importar configuración API', {'action': 'import_api_config'})
 
     # End of directory
     xbmcplugin.endOfDirectory(HANDLE)
@@ -396,8 +397,30 @@ def router(params):
         show_stats()
     elif action == 'help':
         show_help()
+    elif action == 'import_api_config':
+        import_api_config()
     else:
         main_menu()
+# --- IMPORTAR CONFIGURACIÓN API ---
+def import_api_config():
+    dialog = xbmcgui.Dialog()
+    file_path = dialog.browse(1, 'Selecciona archivo de configuración API', 'files', '.txt')
+    if not file_path:
+        return
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        if len(lines) < 2:
+            xbmcgui.Dialog().ok('Importar configuración', 'El archivo debe tener al menos dos líneas: Client ID y Client Secret.')
+            return
+        client_id = lines[0].strip()
+        client_secret = lines[1].strip()
+        addon = xbmcaddon.Addon()
+        addon.setSetting('client_id', client_id)
+        addon.setSetting('client_secret', client_secret)
+        xbmc.executebuiltin('Notification(MAL Tracker, Configuración importada correctamente)')
+    except Exception as e:
+        xbmcgui.Dialog().ok('Importar configuración', f'Error al importar configuración:\n{e}')
 # --- MENÚ DE AYUDA ---
 def show_help():
     ayuda = (
@@ -413,24 +436,30 @@ def show_help():
         "   - Ve a los ajustes del addon (botón derecho > Ajustes o menú contextual).\n"
         "   - Ingresa tu usuario de MyAnimeList, Client ID y Client Secret.\n"
         "   - Si usas AniList para el calendario, ingresa también tu usuario de AniList.\n\n"
-        "4. [B]Primer uso y autenticación:[/B]\n"
+        "4. [B]Importar configuración de API desde archivo:[/B]\n"
+        "   - Puedes importar el Client ID y el Client Secret desde un archivo de texto plano usando la opción 'Importar configuración API' en el menú principal.\n"
+        "   - El archivo debe tener la primera línea con el Client ID y la segunda línea con el Client Secret.\n"
+        "   - Ejemplo de archivo:\n"
+        "     abcdefghijklmnopqrstuvwxyz123456\n"
+        "     zyxwvutsrqponmlkjihgfedcba654321\n\n"
+        "5. [B]Primer uso y autenticación:[/B]\n"
         "   - Al intentar sincronizar por primera vez, se abrirá una ventana o se mostrará una URL para autorizar el addon.\n"
         "   - Copia y pega la URL en tu navegador, inicia sesión y autoriza el acceso.\n"
         "   - Si se solicita un código, pégalo en el addon.\n\n"
-        "5. [B]Importar bibliotecas de Alfa/Balandro:[/B]\n"
+        "6. [B]Importar bibliotecas de Alfa/Balandro:[/B]\n"
         "   - Si tienes estos addons, puedes importar tu progreso desde el menú principal.\n"
         "   - Asegúrate de que las rutas de las bases de datos sean correctas en los ajustes si usas rutas personalizadas.\n\n"
-        "6. [B]Buscar y añadir animes:[/B]\n"
+        "7. [B]Buscar y añadir animes:[/B]\n"
         "   - Usa 'Buscar Anime' para encontrar títulos y añadirlos a tu lista de MAL.\n"
         "   - Puedes marcar episodios como vistos y cambiar el estado desde el menú contextual.\n\n"
-        "7. [B]Exportar e importar datos:[/B]\n"
+        "8. [B]Exportar e importar datos:[/B]\n"
         "   - Puedes exportar tu historial y lista a archivos CSV o JSON para respaldo.\n"
         "   - Usa la opción de importar para restaurar datos si cambias de dispositivo.\n\n"
-        "8. [B]Solución de problemas:[/B]\n"
+        "9. [B]Solución de problemas:[/B]\n"
         "   - Si el addon no sincroniza, revisa tu conexión a internet y que los datos de la API sean correctos.\n"
         "   - Si cambiaste tu contraseña de MAL, puede que debas volver a autorizar el addon.\n"
         "   - Consulta el log de Kodi para detalles de errores: https://kodi.wiki/view/Log_file\n\n"
-        "9. [B]Soporte y documentación:[/B]\n"
+        "10. [B]Soporte y documentación:[/B]\n"
         "   - Documentación oficial de la API de MAL: https://myanimelist.net/apiconfig/references/api/v2\n"
         "   - Ayuda de Kodi: https://kodi.wiki/\n"
         "   - Comunidad Kodi en español: https://mundokodi.com/\n"
