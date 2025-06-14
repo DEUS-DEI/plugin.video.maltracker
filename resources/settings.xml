@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="Integración con otros addons">
+        <setting id="alfa_db_path" type="text" label="Ruta base de datos Alfa (vacío = estándar)" default=""/>
+        <setting id="balandro_db_path" type="text" label="Ruta base de datos Balandro (vacío = estándar)" default=""/>
+    </category>
+    <category label="General">
+        <setting id="mal_username" type="text" label="MyAnimeList Username" default=""/>
+        <setting id="anilist_username" type="text" label="AniList Username" default=""/>
+        <setting id="client_id" type="text" label="MAL Client ID" default=""/>
+        <setting id="client_secret" type="text" label="MAL Client Secret" default=""/>
+    </category>
+    <category label="Advanced">
+        <setting id="auto_sync" type="bool" label="Auto Sync on Play" default="true"/>
+        <setting id="sync_interval" type="number" label="Sync Interval (minutes)" default="60"/>
+    </category>
+</settings>

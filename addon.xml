@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.maltracker"
+       version="0.1.0"
+       name="MAL Tracker"
+       provider-name="[Your Name]">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.requests" version="2.20.0"/>
+    <import addon="script.module.oauth2" version="1.0.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource"
+             library="default.py">
+        <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Tracks your MyAnimeList anime list and playback progress.</summary>
+    <description lang="en">
+      This addon allows you to synchronize your anime list on MyAnimeList with your Kodi playback history.
+      It supports automatic episode tracking, manual updates, and browsing your list within Kodi.
+    </description>
+    <platform>all</platform>
+    <license>GPL-2.0-or-later</license>
+    <forum></forum>
+    <website></website>
+    <source></source>
+    <email></email>
+    <assets>
+        <icon>resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+    </assets>
+  </extension>
+</addon>
