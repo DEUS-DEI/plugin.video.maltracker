@@ -43,6 +43,12 @@ def router(paramstring):
             show_help()
         elif action == 'import_api_config':
             import_api_config()
+        elif action == 'reset_settings':
+            reset_settings()
+        elif action == 'export_settings':
+            export_settings()
+        elif action == 'import_settings':
+            import_settings()
         elif action == 'login_mal':
             login_mal()
         else:
@@ -51,6 +57,74 @@ def router(paramstring):
         xbmc.log(f"[MAL Tracker] Error in router: {e}", xbmc.LOGERROR)
         xbmcgui.Dialog().ok('MAL Tracker', f'Error: {e}')
         main_menu()
+# --- IMPORTAR CONFIGURACIÓN DESDE ARCHIVO JSON ---
+def import_settings():
+    import xbmcaddon
+    addon = xbmcaddon.Addon()
+    import xbmcvfs
+    import os
+    import json
+    dialog = xbmcgui.Dialog()
+    file_path = dialog.browse(1, 'Selecciona archivo de configuración', 'files', '.json')
+    if not file_path:
+        return
+    try:
+        with xbmcvfs.File(file_path, 'r') as f:
+            data = json.loads(f.read())
+        for key, value in data.items():
+            try:
+                addon.setSetting(key, str(value))
+            except Exception:
+                pass
+        xbmcgui.Dialog().ok('Importar configuración', 'Configuración importada correctamente. Reinicia Kodi o el addon para aplicar los cambios.')
+    except Exception as e:
+        xbmcgui.Dialog().ok('Importar configuración', f'Error al importar:\n{e}')
+    except Exception as e:
+        xbmc.log(f"[MAL Tracker] Error in router: {e}", xbmc.LOGERROR)
+        xbmcgui.Dialog().ok('MAL Tracker', f'Error: {e}')
+        main_menu()
+# --- RESTABLECER Y EXPORTAR CONFIGURACIÓN ---
+def reset_settings():
+    import xbmcaddon
+    addon = xbmcaddon.Addon()
+    confirm = xbmcgui.Dialog().yesno('Restablecer configuración', '¿Seguro que quieres restablecer todos los ajustes del addon a valores predeterminados?')
+    if confirm:
+        for setting in ["mal_username", "anilist_username", "client_id", "client_secret", "alfa_db_path", "balandro_db_path", "auto_sync", "sync_interval"]:
+            try:
+                addon.setSetting(setting, "")
+            except Exception:
+                pass
+        xbmcgui.Dialog().ok('Restablecer configuración', 'Ajustes restablecidos. Reinicia Kodi o el addon para aplicar los cambios.')
+
+def export_settings():
+    import xbmcaddon
+    addon = xbmcaddon.Addon()
+    import xbmcvfs
+    import os
+    # Seleccionar ruta destino
+    dialog = xbmcgui.Dialog()
+    dest = dialog.browse(3, 'Selecciona carpeta para exportar configuración', 'files')
+    if not dest:
+        return
+    # Recopilar ajustes
+    settings = {
+        "mal_username": addon.getSetting("mal_username"),
+        "anilist_username": addon.getSetting("anilist_username"),
+        "client_id": addon.getSetting("client_id"),
+        "client_secret": addon.getSetting("client_secret"),
+        "alfa_db_path": addon.getSetting("alfa_db_path"),
+        "balandro_db_path": addon.getSetting("balandro_db_path"),
+        "auto_sync": addon.getSetting("auto_sync"),
+        "sync_interval": addon.getSetting("sync_interval")
+    }
+    import json
+    export_path = os.path.join(dest, "maltracker_settings.json")
+    try:
+        with xbmcvfs.File(export_path, 'w') as f:
+            f.write(json.dumps(settings, indent=2))
+        xbmcgui.Dialog().ok('Exportar configuración', f'Configuración exportada a:\n{export_path}')
+    except Exception as e:
+        xbmcgui.Dialog().ok('Exportar configuración', f'Error al exportar:\n{e}')
 
 import xbmc
 import xbmcvfs
@@ -110,13 +184,14 @@ def my_list():
     from urllib.parse import parse_qs
     params = dict(parse_qs(sys.argv[2][1:]))
     status = params.get('status', ['watching'])[0]
+    addon = xbmcaddon.Addon()
     # Filtros avanzados
-    keyboard = xbmc.Keyboard('', 'Buscar título (opcional)')
+    keyboard = xbmc.Keyboard('', addon.getLocalizedString(32112))
     keyboard.doModal()
     search_term = keyboard.getText() if keyboard.isConfirmed() else None
-    genre = xbmcgui.Dialog().input('Filtrar por género (opcional)')
-    year = xbmcgui.Dialog().input('Filtrar por año (opcional)')
-    min_score = xbmcgui.Dialog().numeric(0, 'Puntaje mínimo (opcional)')
+    genre = xbmcgui.Dialog().input(addon.getLocalizedString(32113))
+    year = xbmcgui.Dialog().input(addon.getLocalizedString(32114))
+    min_score = xbmcgui.Dialog().numeric(0, addon.getLocalizedString(32115))
     min_score = int(min_score) if min_score else 0
     anime_list = mal_api.get_anime_list()
     if anime_list:
@@ -137,10 +212,10 @@ def my_list():
             ):
                 list_item = xbmcgui.ListItem(title)
                 context_menu = [
-                    ("Registrar episodio manualmente", f"RunPlugin({get_url({'action': 'manual_log', 'anime_id': anime_id})})"),
-                    ("Ver detalles", f"RunPlugin({get_url({'action': 'details', 'anime_id': anime_id})})"),
-                    ("Marcar episodio como visto", f"RunPlugin({get_url({'action': 'mark_watched', 'anime_id': anime_id})})"),
-                    ("Cambiar estado", f"RunPlugin({get_url({'action': 'change_status', 'anime_id': anime_id})})")
+                    (addon.getLocalizedString(32116), f"RunPlugin({get_url({'action': 'manual_log', 'anime_id': anime_id})})"),
+                    (addon.getLocalizedString(32117), f"RunPlugin({get_url({'action': 'details', 'anime_id': anime_id})})"),
+                    (addon.getLocalizedString(32118), f"RunPlugin({get_url({'action': 'mark_watched', 'anime_id': anime_id})})"),
+                    (addon.getLocalizedString(32119), f"RunPlugin({get_url({'action': 'change_status', 'anime_id': anime_id})})")
                 ]
                 list_item.addContextMenuItems(context_menu)
                 url = get_url({'action': 'play', 'anime_id': anime_id})
@@ -148,7 +223,7 @@ def my_list():
         xbmcplugin.endOfDirectory(HANDLE)
     else:
         dialog = xbmcgui.Dialog()
-        dialog.ok("MAL Tracker", "Failed to get your anime list from MAL.")
+        dialog.ok("MAL Tracker", addon.getLocalizedString(32120))
         xbmcplugin.endOfDirectory(HANDLE)
 
 import sqlite3

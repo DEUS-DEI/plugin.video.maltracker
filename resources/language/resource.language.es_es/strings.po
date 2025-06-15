@@ -1,168 +1,167 @@
 
 msgctxt "#32100"
 msgid "Session closed successfully."
-msgstr "Session closed successfully."
+msgstr "Sesión cerrada correctamente."
 
 msgctxt "#32101"
 msgid "Reset settings"
-msgstr "Reset settings"
+msgstr "Restablecer configuración"
 
 msgctxt "#32102"
 msgid "Are you sure you want to reset all addon settings to default values?"
-msgstr "Are you sure you want to reset all addon settings to default values?"
+msgstr "¿Seguro que quieres restablecer todos los ajustes del addon a valores predeterminados?"
 
 msgctxt "#32103"
 msgid "Settings reset. Restart Kodi or the addon to apply changes."
-msgstr "Settings reset. Restart Kodi or the addon to apply changes."
+msgstr "Ajustes restablecidos. Reinicia Kodi o el addon para aplicar los cambios."
 
 msgctxt "#32104"
 msgid "Select folder to export settings"
-msgstr "Select folder to export settings"
+msgstr "Selecciona carpeta para exportar configuración"
 
 msgctxt "#32105"
 msgid "Export settings"
-msgstr "Export settings"
+msgstr "Exportar configuración"
 
 msgctxt "#32106"
 msgid "Settings exported to:"
-msgstr "Settings exported to:"
+msgstr "Configuración exportada a:"
 
 msgctxt "#32107"
 msgid "Error exporting settings."
-msgstr "Error exporting settings."
+msgstr "Error al exportar configuración."
 
 msgctxt "#32108"
 msgid "Select settings file to import"
-msgstr "Select settings file to import"
+msgstr "Selecciona archivo de configuración"
 
 msgctxt "#32109"
 msgid "Import settings"
-msgstr "Import settings"
+msgstr "Importar configuración"
 
 msgctxt "#32110"
 msgid "Settings imported successfully. Restart Kodi or the addon to apply changes."
-msgstr "Settings imported successfully. Restart Kodi or the addon to apply changes."
+msgstr "Configuración importada correctamente. Reinicia Kodi o el addon para aplicar los cambios."
 
 msgctxt "#32111"
 msgid "Error importing settings."
-msgstr "Error importing settings."
+msgstr "Error al importar configuración."
 
 msgctxt "#32112"
 msgid "Search title (optional)"
-msgstr "Search title (optional)"
+msgstr "Buscar título (opcional)"
 
 msgctxt "#32113"
 msgid "Filter by genre (optional)"
-msgstr "Filter by genre (optional)"
+msgstr "Filtrar por género (opcional)"
 
 msgctxt "#32114"
 msgid "Filter by year (optional)"
-msgstr "Filter by year (optional)"
+msgstr "Filtrar por año (opcional)"
 
 msgctxt "#32115"
 msgid "Minimum score (optional)"
-msgstr "Minimum score (optional)"
+msgstr "Puntaje mínimo (opcional)"
 
 msgctxt "#32116"
 msgid "Register episode manually"
-msgstr "Register episode manually"
+msgstr "Registrar episodio manualmente"
 
 msgctxt "#32117"
 msgid "View details"
-msgstr "View details"
+msgstr "Ver detalles"
 
 msgctxt "#32118"
 msgid "Mark episode as watched"
-msgstr "Mark episode as watched"
+msgstr "Marcar episodio como visto"
 
 msgctxt "#32119"
 msgid "Change status"
-msgstr "Change status"
+msgstr "Cambiar estado"
 
 msgctxt "#32120"
 msgid "Failed to get your anime list from MAL."
-msgstr "Failed to get your anime list from MAL."
-
+msgstr "No se pudo obtener tu lista de anime de MAL."
 msgctxt "#32001"
 msgid "Login to MyAnimeList"
-msgstr "Login to MyAnimeList"
+msgstr "Iniciar sesión en MyAnimeList"
 
 msgctxt "#32002"
 msgid "Logout from MyAnimeList"
-msgstr "Logout from MyAnimeList"
+msgstr "Cerrar sesión de MyAnimeList"
 
 msgctxt "#32003"
 msgid "Help"
-msgstr "Help / How to configure"
+msgstr "Ayuda / Cómo configurar"
 
 msgctxt "#32005"
 msgid "Export Data"
-msgstr "Export Data"
+msgstr "Exportar datos"
 
 msgctxt "#32006"
 msgid "Import Data"
-msgstr "Import Data"
+msgstr "Importar datos"
 
 msgctxt "#32007"
 msgid "Search Anime"
-msgstr "Search Anime"
+msgstr "Buscar anime"
 
 msgctxt "#32009"
 msgid "Statistics"
-msgstr "Statistics"
+msgstr "Estadísticas"
 
 msgctxt "#32010"
 msgid "Calendar"
-msgstr "Calendar"
+msgstr "Calendario"
 
 msgctxt "#32020"
 msgid "Import from Alfa"
-msgstr "Import from Alfa"
+msgstr "Importar desde Alfa"
 
 msgctxt "#32021"
 msgid "Import from Balandro"
-msgstr "Import from Balandro"
+msgstr "Importar desde Balandro"
 
 msgctxt "#32022"
 msgid "Watching"
-msgstr "Watching"
+msgstr "Viendo"
 
 msgctxt "#32023"
 msgid "Completed"
-msgstr "Completed"
+msgstr "Completado"
 
 msgctxt "#32024"
 msgid "On Hold"
-msgstr "On Hold"
+msgstr "En pausa"
 
 msgctxt "#32025"
 msgid "Dropped"
-msgstr "Dropped"
+msgstr "Abandonado"
 
 msgctxt "#32026"
 msgid "Plan to Watch"
-msgstr "Plan to Watch"
+msgstr "Pendiente de ver"
 
 msgctxt "#32027"
 msgid "Import API Config"
-msgstr "Import API Config"
+msgstr "Importar configuración API"
 
 msgctxt "#32028"
 msgid "Invalid file format."
-msgstr "Invalid file format."
+msgstr "Formato de archivo no válido."
 
 msgctxt "#32029"
 msgid "Error importing file."
-msgstr "Error importing file."
+msgstr "Error al importar archivo."
 
 msgctxt "#32030"
 msgid "CSV imported successfully."
-msgstr "CSV imported successfully."
+msgstr "CSV importado correctamente."
 
 msgctxt "#32031"
 msgid "Error importing JSON file."
-msgstr "Error importing JSON file."
+msgstr "Error al importar archivo JSON."
 
 msgctxt "#32032"
 msgid "JSON imported successfully."
-msgstr "JSON imported successfully."
+msgstr "JSON importado correctamente."
