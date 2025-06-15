@@ -54,22 +54,21 @@ def authenticate():
         return authenticate_new()
 
 def authenticate_new():
-    # Generate code verifier and challenge
 
+    # Generar code_verifier y usarlo como code_challenge (PKCE plain)
     import secrets
-    import hashlib
-    import base64
     code_verifier = secrets.token_urlsafe(64)[:128]
-    code_challenge = hashlib.sha256(code_verifier.encode('ascii')).digest()
-    code_challenge = base64.urlsafe_b64encode(code_challenge).decode('ascii').replace('=', '')
+    code_challenge = code_verifier  # plain method
+    # Generar parámetro state aleatorio
+    state = secrets.token_urlsafe(16)
 
-
-    # Build authorization URL (incluye redirect_uri)
+    # Construir URL de autorización
     auth_url = (
         f'{_AUTH_URL}?response_type=code'
         f'&client_id={_CLIENT_ID}'
+        f'&state={state}'
         f'&code_challenge={code_challenge}'
-        f'&code_challenge_method=S256'
+        f'&code_challenge_method=plain'
         f'&redirect_uri={_REDIRECT_URI}'
     )
 
@@ -122,8 +121,12 @@ def get_token(auth_code, code_verifier):
         xbmcgui.Dialog().ok("MAL Tracker", f"Failed to get token: {response.status_code} - {response.text}")
         return None
 
-    # Save token to file
+    # Save token to file, calculando expires_at
     token = response.json()
+    import time
+    expires_in = token.get('expires_in')
+    if expires_in:
+        token['expires_at'] = int(time.time()) + int(expires_in)
     save_token(token)
 
     return token
@@ -146,20 +149,41 @@ def refresh_token(refresh_token):
         xbmcgui.Dialog().ok("MAL Tracker", f"Failed to refresh token: {response.status_code} - {response.text}")
         return None
 
-    # Save token to file
+    # Save token to file, calculando expires_at
     token = response.json()
+    import time
+    expires_in = token.get('expires_in')
+    if expires_in:
+        token['expires_at'] = int(time.time()) + int(expires_in)
     save_token(token)
 
     return token
 
 def is_token_valid(token):
     # Check if token is expired
-    # Implementación básica: asume que el token es un dict con 'expires_at' (timestamp)
     import time
     expires_at = token.get('expires_at')
     if expires_at is None:
+        # Si no existe, forzar refresh
         return False
     return time.time() < expires_at
+
+def ensure_valid_token():
+    """Carga el token y lo refresca si es necesario. Devuelve un token válido o None."""
+    if not os.path.exists(_TOKEN_FILE):
+        return None
+    with open(_TOKEN_FILE, 'r') as f:
+        token = json.load(f)
+    if is_token_valid(token):
+        return token
+    # Intentar refrescar
+    refreshed = refresh_token(token.get('refresh_token'))
+    return refreshed
+
+def logout():
+    """Elimina el token guardado (logout local)."""
+    if os.path.exists(_TOKEN_FILE):
+        os.remove(_TOKEN_FILE)
 
 def save_token(token):
     # Ensure directory exists

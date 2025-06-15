@@ -1,3 +1,17 @@
+# --- OPCIONES DE SESIÓN Y ROUTER ---
+def logout_mal():
+    from resources.lib import auth
+    auth.logout()
+    xbmcgui.Dialog().ok('MAL Tracker', 'Sesión cerrada correctamente.')
+    xbmc.executebuiltin('Container.Refresh')
+
+def router(paramstring):
+    import urllib.parse
+    params = dict(urllib.parse.parse_qsl(paramstring))
+    action = params.get('action')
+    if action == 'logout_mal':
+        logout_mal()
+    # Aquí puedes agregar más acciones según sea necesario
 
 import xbmc
 import xbmcvfs
@@ -485,12 +499,11 @@ def show_help():
 
 # --- PUNTO DE ENTRADA DEL ADDON ---
 if __name__ == '__main__':
-    import urllib.parse
+    # Llamar al router con el string de parámetros
     if len(sys.argv) > 2 and sys.argv[2]:
-        params = dict(urllib.parse.parse_qsl(sys.argv[2][1:]))
+        router(sys.argv[2][1:])
     else:
-        params = {}
-    router(params)
+        main_menu()
 def importar_alfa():
     from resources.lib.integracion_addons import importar_biblioteca_alfa
     import resources.lib.db as db

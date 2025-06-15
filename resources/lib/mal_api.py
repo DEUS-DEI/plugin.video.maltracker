@@ -1,34 +1,53 @@
 def get_anime_details(anime_id):
-    token = auth.authenticate()
+    token = auth.ensure_valid_token()
     if not token:
         return None
     url = f'{_API_BASE_URL}/anime/{anime_id}?fields=id,title,num_episodes,synopsis,my_list_status'
     headers = {'Authorization': f'Bearer {token["access_token"]}'}
     response = requests.get(url, headers=headers)
+    if response.status_code == 401:
+        # Intentar refrescar token y reintentar
+        token = auth.ensure_valid_token()
+        if not token:
+            return None
+        headers = {'Authorization': f'Bearer {token["access_token"]}'}
+        response = requests.get(url, headers=headers)
     if response.status_code != 200:
         return None
     return response.json()
 
 def search_anime_full(query):
-    token = auth.authenticate()
+    token = auth.ensure_valid_token()
     if not token:
         return []
     url = f'{_API_BASE_URL}/anime?q={query}&limit=10&fields=id,title,synopsis,num_episodes'
     headers = {'Authorization': f'Bearer {token["access_token"]}'}
     response = requests.get(url, headers=headers)
+    if response.status_code == 401:
+        token = auth.ensure_valid_token()
+        if not token:
+            return []
+        headers = {'Authorization': f'Bearer {token["access_token"]}'}
+        response = requests.get(url, headers=headers)
     if response.status_code != 200:
         return []
     data = response.json()
     return [item['node'] for item in data.get('data', [])]
 
 def add_to_list(anime_id):
-    token = auth.authenticate()
+    token = auth.ensure_valid_token()
     if not token:
         return False
     url = f'{_API_BASE_URL}/anime/{anime_id}/my_list_status'
     headers = {'Authorization': f'Bearer {token["access_token"]}'}
     data = {'status': 'watching'}
     response = requests.put(url, headers=headers, data=data)
+    if response.status_code == 401:
+        token = auth.ensure_valid_token()
+        if not token:
+            return False
+        headers = {'Authorization': f'Bearer {token["access_token"]}'}
+        response = requests.put(url, headers=headers, data=data)
     return response.status_code == 200
 
 def get_airing_calendar():
@@ -101,7 +120,7 @@ _API_BASE_URL = 'https://api.myanimelist.net/v2'
 
 def get_anime_list():
     # Authenticate
-    token = auth.authenticate()
+    token = auth.ensure_valid_token()
     if not token:
         xbmcgui.Dialog().ok("MAL Tracker", "Authentication failed.")
         return None
@@ -115,17 +134,26 @@ def get_anime_list():
     }
     response = requests.get(url, headers=headers)
 
+    if response.status_code == 401:
+        token = auth.ensure_valid_token()
+        if not token:
+            xbmcgui.Dialog().ok("MAL Tracker", "Authentication failed.")
+            return None
+        headers = {'Authorization': f'Bearer {token["access_token"]}'}
+        response = requests.get(url, headers=headers)
+
     if response.status_code != 200:
         xbmcgui.Dialog().ok("MAL Tracker", f"Failed to get anime list: {response.status_code} - {response.text}")
         return None
 
     # Parse response
     data = response.json()
+    # Sugerencia: implementar paginación si hay más de 1000 resultados usando 'paging' en la respuesta
     return data['data']
 
 def update_episode(anime_id, episode):
     # Authenticate
-    token = auth.authenticate()
+    token = auth.ensure_valid_token()
     if not token:
         xbmcgui.Dialog().ok("MAL Tracker", "Authentication failed.")
         return False
@@ -144,6 +172,14 @@ def update_episode(anime_id, episode):
     }
     response = requests.patch(url, headers=headers, data=data)
 
+    if response.status_code == 401:
+        token = auth.ensure_valid_token()
+        if not token:
+            xbmcgui.Dialog().ok("MAL Tracker", "Authentication failed.")
+            return False
+        headers = {'Authorization': f'Bearer {token["access_token"]}'}
+        response = requests.patch(url, headers=headers, data=data)
+
     if response.status_code != 200:
         xbmcgui.Dialog().ok("MAL Tracker", f"Failed to update episode: {response.status_code} - {response.text}")
         xbmc.executebuiltin('Notification(MAL Tracker, Error al actualizar episodio en MAL)')
@@ -154,7 +190,7 @@ def update_episode(anime_id, episode):
 
 def update_status(anime_id, status):
     # Authenticate
-    token = auth.authenticate()
+    token = auth.ensure_valid_token()
     if not token:
         xbmcgui.Dialog().ok("MAL Tracker", "Authentication failed.")
         return False
@@ -173,6 +209,14 @@ def update_status(anime_id, status):
     }
     response = requests.patch(url, headers=headers, data=data)
 
+    if response.status_code == 401:
+        token = auth.ensure_valid_token()
+        if not token:
+            xbmcgui.Dialog().ok("MAL Tracker", "Authentication failed.")
+            return False
+        headers = {'Authorization': f'Bearer {token["access_token"]}'}
+        response = requests.patch(url, headers=headers, data=data)
+
     if response.status_code != 200:
         xbmcgui.Dialog().ok("MAL Tracker", f"Failed to update status: {response.status_code} - {response.text}")
         xbmc.executebuiltin('Notification(MAL Tracker, Error al actualizar estado en MAL)')
@@ -183,7 +227,7 @@ def update_status(anime_id, status):
 
 def search_anime(title):
     # Authenticate
-    token = auth.authenticate()
+    token = auth.ensure_valid_token()
     if not token:
         xbmcgui.Dialog().ok("MAL Tracker", "Authentication failed.")
         return None
@@ -196,6 +240,14 @@ def search_anime(title):
         'Authorization': f'Bearer {token["access_token"]}'
     }
     response = requests.get(url, headers=headers)
+
+    if response.status_code == 401:
+        token = auth.ensure_valid_token()
+        if not token:
+            xbmcgui.Dialog().ok("MAL Tracker", "Authentication failed.")
+            return None
+        headers = {'Authorization': f'Bearer {token["access_token"]}'}
+        response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         xbmcgui.Dialog().ok("MAL Tracker", f"Failed to search anime: {response.status_code} - {response.text}")
