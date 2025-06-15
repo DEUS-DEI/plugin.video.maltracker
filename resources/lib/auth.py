@@ -61,12 +61,27 @@ def authenticate_new():
     # Build authorization URL
     auth_url = f'{_AUTH_URL}?response_type=code&client_id={_CLIENT_ID}&code_challenge={code_challenge}&code_challenge_method=S256'
 
-    # Open authorization URL in browser
-    xbmc.executebuiltin(f'XBMC.System.Exec({auth_url})')
+    # Intentar abrir el navegador automáticamente
+    try:
+        import webbrowser
+        webbrowser.open(auth_url)
+        xbmcgui.Dialog().ok('Autenticación MAL', 'Se ha intentado abrir el navegador con la URL de autorización. Si no se abre, copia la URL manualmente.')
+    except Exception:
+        xbmcgui.Dialog().ok('Autenticación MAL', 'No se pudo abrir el navegador automáticamente. Copia la URL manualmente.')
+
+    # Mostrar la URL y permitir copiarla
+    ok = xbmcgui.Dialog().yesno('Autenticación MAL', f'Abre la siguiente URL en tu navegador para autorizar el addon:\n\n{auth_url}\n\n¿Copiar la URL al portapapeles?', yeslabel='Copiar', nolabel='No copiar')
+    if ok:
+        try:
+            import pyperclip
+            pyperclip.copy(auth_url)
+            xbmcgui.Dialog().ok('Autenticación MAL', 'URL copiada al portapapeles.')
+        except Exception:
+            xbmcgui.Dialog().ok('Autenticación MAL', 'No se pudo copiar al portapapeles. Copia la URL manualmente.')
 
     # Get authorization code from user
     dialog = xbmcgui.Dialog()
-    auth_code = dialog.input('MyAnimeList Authorization Code', type=xbmcgui.INPUT_ALPHANUM)
+    auth_code = dialog.input('Pega el código de autorización de MyAnimeList', type=xbmcgui.INPUT_ALPHANUM)
 
     if not auth_code:
         return None
