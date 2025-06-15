@@ -27,6 +27,7 @@ def get_url(params):
     return url
 
 def main_menu():
+    add_directory_item('Iniciar sesión en MyAnimeList', {'action': 'login_mal'})
     add_directory_item('Importar Alfa', {'action': 'import_alfa'})
     add_directory_item('Importar Balandro', {'action': 'import_balandro'})
     # Create main menu items
@@ -399,8 +400,19 @@ def router(params):
         show_help()
     elif action == 'import_api_config':
         import_api_config()
+    elif action == 'login_mal':
+        login_mal()
     else:
         main_menu()
+
+# --- INICIAR SESIÓN MANUAL MAL ---
+def login_mal():
+    from resources.lib import auth
+    token = auth.authenticate_new()
+    if token:
+        xbmcgui.Dialog().ok('MAL Tracker', '¡Inicio de sesión exitoso! Token guardado.')
+    else:
+        xbmcgui.Dialog().ok('MAL Tracker', 'No se pudo completar el inicio de sesión. Intenta de nuevo.')
 # --- IMPORTAR CONFIGURACIÓN API ---
 def import_api_config():
     dialog = xbmcgui.Dialog()

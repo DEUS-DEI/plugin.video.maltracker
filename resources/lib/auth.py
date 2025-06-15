@@ -22,9 +22,14 @@ _ADDON = xbmcaddon.Addon()
 _CLIENT_ID = _ADDON.getSetting('client_id')
 _CLIENT_SECRET = _ADDON.getSetting('client_secret')
 
+
 # OAuth2 URLs
 _AUTH_URL = 'https://myanimelist.net/v1/oauth2/authorize'
 _TOKEN_URL = 'https://myanimelist.net/v1/oauth2/token'
+
+# Redirect URI registrado en MyAnimeList (debe coincidir con el panel de la app)
+# Si solo permite localhost, usa exactamente este valor:
+_REDIRECT_URI = 'http://localhost'
 
 # Token file path
 _TOKEN_FILE = os.path.join(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker'), 'token.json')
@@ -58,8 +63,15 @@ def authenticate_new():
     code_challenge = hashlib.sha256(code_verifier.encode('ascii')).digest()
     code_challenge = base64.urlsafe_b64encode(code_challenge).decode('ascii').replace('=', '')
 
-    # Build authorization URL
-    auth_url = f'{_AUTH_URL}?response_type=code&client_id={_CLIENT_ID}&code_challenge={code_challenge}&code_challenge_method=S256'
+
+    # Build authorization URL (incluye redirect_uri)
+    auth_url = (
+        f'{_AUTH_URL}?response_type=code'
+        f'&client_id={_CLIENT_ID}'
+        f'&code_challenge={code_challenge}'
+        f'&code_challenge_method=S256'
+        f'&redirect_uri={_REDIRECT_URI}'
+    )
 
     # Intentar abrir el navegador automáticamente
     try:
@@ -92,13 +104,15 @@ def authenticate_new():
     return token
 
 def get_token(auth_code, code_verifier):
-    # Build token request data
+
+    # Build token request data (incluye redirect_uri)
     data = {
         'grant_type': 'authorization_code',
         'code': auth_code,
         'client_id': _CLIENT_ID,
         'client_secret': _CLIENT_SECRET,
-        'code_verifier': code_verifier
+        'code_verifier': code_verifier,
+        'redirect_uri': _REDIRECT_URI
     }
 
     # Make token request
@@ -115,12 +129,14 @@ def get_token(auth_code, code_verifier):
     return token
 
 def refresh_token(refresh_token):
-    # Build refresh token request data
+
+    # Build refresh token request data (incluye redirect_uri)
     data = {
         'grant_type': 'refresh_token',
         'refresh_token': refresh_token,
         'client_id': _CLIENT_ID,
-        'client_secret': _CLIENT_SECRET
+        'client_secret': _CLIENT_SECRET,
+        'redirect_uri': _REDIRECT_URI
     }
 
     # Make refresh token request
