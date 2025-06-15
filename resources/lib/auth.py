@@ -34,11 +34,15 @@ _REDIRECT_URI = 'http://localhost'
 # Token file path
 _TOKEN_FILE = os.path.join(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker'), 'token.json')
 
+# --- Definición correcta de authenticate() ---
 def authenticate():
     # Check if token exists
-    if os.path.exists(_TOKEN_FILE):
-        with open(_TOKEN_FILE, 'r') as f:
+    if xbmcvfs.exists(_TOKEN_FILE):
+        f = xbmcvfs.File(_TOKEN_FILE)
+        try:
             token = json.load(f)
+        finally:
+            f.close()
         # Check if token is valid
         if is_token_valid(token):
             return token
@@ -168,12 +172,18 @@ def is_token_valid(token):
         return False
     return time.time() < expires_at
 
+import hashlib
+import base64
+
 def ensure_valid_token():
     """Carga el token y lo refresca si es necesario. Devuelve un token válido o None."""
-    if not os.path.exists(_TOKEN_FILE):
+    if not xbmcvfs.exists(_TOKEN_FILE):
         return None
-    with open(_TOKEN_FILE, 'r') as f:
+    f = xbmcvfs.File(_TOKEN_FILE)
+    try:
         token = json.load(f)
+    finally:
+        f.close()
     if is_token_valid(token):
         return token
     # Intentar refrescar
@@ -182,18 +192,18 @@ def ensure_valid_token():
 
 def logout():
     """Elimina el token guardado (logout local)."""
-    if os.path.exists(_TOKEN_FILE):
-        os.remove(_TOKEN_FILE)
+    if xbmcvfs.exists(_TOKEN_FILE):
+        xbmcvfs.delete(_TOKEN_FILE)
 
 def save_token(token):
     # Ensure directory exists
     token_dir = os.path.dirname(_TOKEN_FILE)
-    if not os.path.exists(token_dir):
-        os.makedirs(token_dir)
+    if not xbmcvfs.exists(token_dir):
+        xbmcvfs.mkdirs(token_dir)
 
     # Save token to file
-    with open(_TOKEN_FILE, 'w') as f:
+    f = xbmcvfs.File(_TOKEN_FILE, 'w')
+    try:
         json.dump(token, f)
-
-import hashlib
-import base64
+    finally:
+        f.close()

@@ -1,0 +1,56 @@
+msgid "Addon description"
+msgstr "Tracks your MyAnimeList anime list and playback progress."
+
+msgid "Login to MyAnimeList"
+msgstr "Login to MyAnimeList"
+
+msgid "Logout from MyAnimeList"
+msgstr "Logout from MyAnimeList"
+
+msgid "Help"
+msgstr "Help / How to configure"
+
+msgid "Export Data"
+msgstr "Export Data"
+
+msgid "Import Data"
+msgstr "Import Data"
+
+msgid "Search Anime"
+msgstr "Search Anime"
+
+msgid "Statistics"
+msgstr "Statistics"
+
+msgid "Calendar"
+msgstr "Calendar"
+
+msgid "Settings imported successfully."
+msgstr "Settings imported successfully."
+
+msgid "Error importing settings."
+msgstr "Error importing settings."
+
+msgid "Session closed successfully."
+msgstr "Session closed successfully."
+
+msgid "Failed to get your anime list from MAL."
+msgstr "Failed to get your anime list from MAL."
+
+msgid "Anime not found."
+msgstr "Anime not found."
+
+msgid "Episode registered manually."
+msgstr "Episode registered manually."
+
+msgid "Episode marked as watched."
+msgstr "Episode marked as watched."
+
+msgid "All synchronized."
+msgstr "All synchronized."
+
+msgid "Pending to synchronize"
+msgstr "Pending to synchronize"
+
+msgid "Total episodes watched: {0}\nTotal series: {1}\nApproximate hours: {2}"
+msgstr "Total episodes watched: {0}\nTotal series: {1}\nApproximate hours: {2}"

@@ -7,11 +7,50 @@ def logout_mal():
 
 def router(paramstring):
     import urllib.parse
-    params = dict(urllib.parse.parse_qsl(paramstring))
-    action = params.get('action')
-    if action == 'logout_mal':
-        logout_mal()
-    # Aquí puedes agregar más acciones según sea necesario
+    try:
+        params = dict(urllib.parse.parse_qsl(paramstring))
+        action = params.get('action')
+        if action == 'logout_mal':
+            logout_mal()
+            return
+        if action == 'my_list':
+            my_list()
+        elif action == 'export_data':
+            export_data()
+        elif action == 'import_data':
+            import_data()
+        elif action == 'search':
+            search()
+        elif action == 'manual_log':
+            manual_log(params)
+        elif action == 'details':
+            show_details(params)
+        elif action == 'mark_watched':
+            mark_watched(params)
+        elif action == 'change_status':
+            change_status(params)
+        elif action == 'sync_check':
+            sync_check()
+        elif action == 'calendar':
+            show_calendar()
+        elif action == 'import_alfa':
+            importar_alfa()
+        elif action == 'import_balandro':
+            importar_balandro()
+        elif action == 'stats':
+            show_stats()
+        elif action == 'help':
+            show_help()
+        elif action == 'import_api_config':
+            import_api_config()
+        elif action == 'login_mal':
+            login_mal()
+        else:
+            main_menu()
+    except Exception as e:
+        xbmc.log(f"[MAL Tracker] Error in router: {e}", xbmc.LOGERROR)
+        xbmcgui.Dialog().ok('MAL Tracker', f'Error: {e}')
+        main_menu()
 
 import xbmc
 import xbmcvfs
@@ -32,7 +71,7 @@ BASE_URL = sys.argv[0]
 ADDON_PATH = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path'))
 
 # Get the settings path
-settings_file = os.path.join(ADDON_PATH, 'resources', 'settings.xml')
+settings_file = xbmcvfs.translatePath(os.path.join(ADDON_PATH, 'resources', 'settings.xml'))
 
 def get_url(params):
     url = BASE_URL
@@ -41,22 +80,25 @@ def get_url(params):
     return url
 
 def main_menu():
-    add_directory_item('Iniciar sesión en MyAnimeList', {'action': 'login_mal'})
-    add_directory_item('Importar Alfa', {'action': 'import_alfa'})
-    add_directory_item('Importar Balandro', {'action': 'import_balandro'})
-    # Create main menu items
-    add_directory_item('Watching', {'action': 'my_list', 'status': 'watching'})
-    add_directory_item('Completed', {'action': 'my_list', 'status': 'completed'})
-    add_directory_item('On Hold', {'action': 'my_list', 'status': 'on_hold'})
-    add_directory_item('Dropped', {'action': 'my_list', 'status': 'dropped'})
-    add_directory_item('Plan to Watch', {'action': 'my_list', 'status': 'plan_to_watch'})
-    add_directory_item('Estadísticas', {'action': 'stats'})
-    add_directory_item('Calendario', {'action': 'calendar'})
-    add_directory_item('Export Data', {'action': 'export_data'})
-    add_directory_item('Import Data', {'action': 'import_data'})
-    add_directory_item('Search Anime', {'action': 'search'})
-    add_directory_item('Ayuda / Cómo configurar', {'action': 'help'})
-    add_directory_item('Importar configuración API', {'action': 'import_api_config'})
+
+    addon = xbmcaddon.Addon()
+    add_directory_item(addon.getLocalizedString(32001), {'action': 'login_mal'})
+    add_directory_item(addon.getLocalizedString(32002), {'action': 'logout_mal'})
+    add_directory_item(addon.getLocalizedString(32020), {'action': 'import_alfa'})
+    add_directory_item(addon.getLocalizedString(32021), {'action': 'import_balandro'})
+    add_directory_item(addon.getLocalizedString(32022), {'action': 'my_list', 'status': 'watching'})
+    add_directory_item(addon.getLocalizedString(32023), {'action': 'my_list', 'status': 'completed'})
+    add_directory_item(addon.getLocalizedString(32024), {'action': 'my_list', 'status': 'on_hold'})
+    add_directory_item(addon.getLocalizedString(32025), {'action': 'my_list', 'status': 'dropped'})
+    add_directory_item(addon.getLocalizedString(32026), {'action': 'my_list', 'status': 'plan_to_watch'})
+    add_directory_item(addon.getLocalizedString(32009), {'action': 'stats'})
+    add_directory_item(addon.getLocalizedString(32010), {'action': 'calendar'})
+    add_directory_item(addon.getLocalizedString(32005), {'action': 'export_data'})
+    add_directory_item(addon.getLocalizedString(32006), {'action': 'import_data'})
+    add_directory_item(addon.getLocalizedString(32007), {'action': 'search'})
+    add_directory_item(addon.getLocalizedString(32003), {'action': 'help'})
+    add_directory_item(addon.getLocalizedString(32027), {'action': 'import_api_config'})
+    xbmcplugin.endOfDirectory(HANDLE)
 
     # End of directory
     xbmcplugin.endOfDirectory(HANDLE)
@@ -160,7 +202,8 @@ def export_history():
 
 def export_anime_list_csv():
     # Get the database connection
-    conn = sqlite3.connect(os.path.join(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker'), 'maltracker.db'))
+    db_path = xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker/maltracker.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     # Get the anime list
@@ -170,15 +213,18 @@ def export_anime_list_csv():
     # Ask the user where they want to save the file
     dialog = xbmcgui.Dialog()
     file_path = dialog.browse(0, 'Export Anime List', 'files', '.csv')
-
     if file_path:
+        file_path = xbmcvfs.translatePath(file_path)
+
         # Write the anime list to the CSV file
-        with open(file_path, 'w', newline='') as csvfile:
-            csvwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        with xbmcvfs.File(file_path, 'w') as csvfile:
+            import io
+            csvfile_obj = io.TextIOWrapper(csvfile, encoding='utf-8', newline='')
+            csvwriter = csv.writer(csvfile_obj, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             csvwriter.writerow(['id', 'mal_id', 'title', 'status', 'episodes_watched'])
             for anime in anime_list:
                 csvwriter.writerow(anime)
-
+            csvfile_obj.flush()
         # Show a notification
         xbmc.executebuiltin('Notification(MAL Tracker, Anime list exported to CSV)')
 
@@ -187,7 +233,8 @@ def export_anime_list_csv():
 
 def export_anime_list_json():
     # Get the database connection
-    conn = sqlite3.connect(os.path.join(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker'), 'maltracker.db'))
+    db_path = xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker/maltracker.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     # Get the anime list
@@ -197,12 +244,16 @@ def export_anime_list_json():
     # Ask the user where they want to save the file
     dialog = xbmcgui.Dialog()
     file_path = dialog.browse(0, 'Export Anime List', 'files', '.json')
+    if file_path:
+        file_path = xbmcvfs.translatePath(file_path)
 
     if file_path:
         # Write the anime list to the JSON file
-        with open(file_path, 'w') as jsonfile:
-            json.dump(anime_list, jsonfile)
-
+        with xbmcvfs.File(file_path, 'w') as jsonfile:
+            import io
+            jsonfile_obj = io.TextIOWrapper(jsonfile, encoding='utf-8')
+            json.dump(anime_list, jsonfile_obj)
+            jsonfile_obj.flush()
         # Show a notification
         xbmc.executebuiltin('Notification(MAL Tracker, Anime list exported to JSON)')
 
@@ -211,7 +262,8 @@ def export_anime_list_json():
 
 def export_history_csv():
     # Get the database connection
-    conn = sqlite3.connect(os.path.join(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker'), 'maltracker.db'))
+    db_path = xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker/maltracker.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     # Get the history
@@ -221,15 +273,19 @@ def export_history_csv():
     # Ask the user where they want to save the file
     dialog = xbmcgui.Dialog()
     file_path = dialog.browse(0, 'Export History', 'files', '.csv')
+    if file_path:
+        file_path = xbmcvfs.translatePath(file_path)
 
     if file_path:
         # Write the history to the CSV file
-        with open(file_path, 'w', newline='') as csvfile:
-            csvwriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        with xbmcvfs.File(file_path, 'w') as csvfile:
+            import io
+            csvfile_obj = io.TextIOWrapper(csvfile, encoding='utf-8', newline='')
+            csvwriter = csv.writer(csvfile_obj, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             csvwriter.writerow(['id', 'anime_id', 'episode', 'date', 'addon_id'])
             for item in history:
                 csvwriter.writerow(item)
-
+            csvfile_obj.flush()
         # Show a notification
         xbmc.executebuiltin('Notification(MAL Tracker, History exported to CSV)')
 
@@ -238,7 +294,8 @@ def export_history_csv():
 
 def export_history_json():
     # Get the database connection
-    conn = sqlite3.connect(os.path.join(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker'), 'maltracker.db'))
+    db_path = xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker/maltracker.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     # Get the history
@@ -248,12 +305,16 @@ def export_history_json():
     # Ask the user where they want to save the file
     dialog = xbmcgui.Dialog()
     file_path = dialog.browse(0, 'Export History', 'files', '.json')
+    if file_path:
+        file_path = xbmcvfs.translatePath(file_path)
 
     if file_path:
         # Write the history to the JSON file
-        with open(file_path, 'w') as jsonfile:
-            json.dump(history, jsonfile)
-
+        with xbmcvfs.File(file_path, 'w') as jsonfile:
+            import io
+            jsonfile_obj = io.TextIOWrapper(jsonfile, encoding='utf-8')
+            json.dump(history, jsonfile_obj)
+            jsonfile_obj.flush()
         # Show a notification
         xbmc.executebuiltin('Notification(MAL Tracker, History exported to JSON)')
 
@@ -281,9 +342,13 @@ def import_csv():
     file_path = dialog.browse(1, 'Import CSV File', 'files', '.csv')
 
     if file_path:
-        # Import the data from the CSV file
+        import xbmcaddon
+        addon = xbmcaddon.Addon()
+        # Import the data from the CSV file usando xbmcvfs.File
         try:
-            with open(file_path, 'r', newline='') as csvfile:
+            with xbmcvfs.File(file_path) as f:
+                import io
+                csvfile = io.TextIOWrapper(f, encoding='utf-8')
                 csvreader = csv.reader(csvfile, delimiter=',', quotechar='"')
                 header = next(csvreader)
                 if header == ['id', 'mal_id', 'title', 'status', 'episodes_watched']:
@@ -319,11 +384,11 @@ def import_csv():
                         except Exception as e:
                             xbmcgui.Dialog().ok("MAL Tracker", f"Error importing row: {row}\n{e}")
                 else:
-                    xbmcgui.Dialog().ok("MAL Tracker", "Invalid CSV file format.")
+                    xbmcgui.Dialog().ok("MAL Tracker", addon.getLocalizedString(32028))
         except Exception as e:
-            xbmcgui.Dialog().ok("MAL Tracker", f"Error importing CSV file:\n{e}")
+            xbmcgui.Dialog().ok("MAL Tracker", f"{addon.getLocalizedString(32029)}\n{e}")
         else:
-            xbmc.executebuiltin('Notification(MAL Tracker, Data imported from CSV)')
+            xbmc.executebuiltin(f'Notification(MAL Tracker, {addon.getLocalizedString(32030)})')
 
 def import_json():
     # Ask the user what file they want to import
@@ -331,9 +396,13 @@ def import_json():
     file_path = dialog.browse(1, 'Import JSON File', 'files', '.json')
 
     if file_path:
-        # Import the data from the JSON file
+        import xbmcaddon
+        addon = xbmcaddon.Addon()
+        # Import the data from the JSON file usando xbmcvfs.File
         try:
-            with open(file_path, 'r') as jsonfile:
+            with xbmcvfs.File(file_path) as f:
+                import io
+                jsonfile = io.TextIOWrapper(f, encoding='utf-8')
                 data = json.load(jsonfile)
                 if isinstance(data, list):
                     # Import anime list
@@ -369,55 +438,40 @@ def import_json():
                             except Exception as e:
                                 xbmcgui.Dialog().ok("MAL Tracker", f"Error importing row: {row}\n{e}")
                     else:
-                        xbmcgui.Dialog().ok("MAL Tracker", "Invalid JSON file format.")
+                        xbmcgui.Dialog().ok("MAL Tracker", addon.getLocalizedString(32028))
                 else:
-                    xbmcgui.Dialog().ok("MAL Tracker", "Invalid JSON file format.")
+                    xbmcgui.Dialog().ok("MAL Tracker", addon.getLocalizedString(32028))
         except Exception as e:
-            xbmcgui.Dialog().ok("MAL Tracker", f"Error importing JSON file:\n{e}")
+            xbmcgui.Dialog().ok("MAL Tracker", f"{addon.getLocalizedString(32031)}\n{e}")
         else:
-            xbmc.executebuiltin('Notification(MAL Tracker, Data imported from JSON)')
+            xbmc.executebuiltin(f'Notification(MAL Tracker, {addon.getLocalizedString(32032)})')
 
 def add_directory_item(name, params):
     url = get_url(params)
     list_item = xbmcgui.ListItem(name)
+    # Asignar descripciones y miniaturas según la acción
+    action = params.get('action', '')
+    if action == 'login_mal':
+        list_item.setInfo('video', {'title': name, 'plot': 'Login to your MyAnimeList account.'})
+        list_item.setArt({'icon': 'special://home/addons/plugin.video.maltracker/resources/media/icon.png'})
+    elif action == 'logout_mal':
+        list_item.setInfo('video', {'title': name, 'plot': 'Logout from your MyAnimeList account.'})
+        list_item.setArt({'icon': 'special://home/addons/plugin.video.maltracker/resources/media/icon.png'})
+    elif action == 'help':
+        list_item.setInfo('video', {'title': name, 'plot': 'Help and configuration instructions.'})
+        list_item.setArt({'icon': 'special://home/addons/plugin.video.maltracker/resources/media/icon.png'})
+    elif action == 'stats':
+        list_item.setInfo('video', {'title': name, 'plot': 'View your anime watching statistics.'})
+        list_item.setArt({'icon': 'special://home/addons/plugin.video.maltracker/resources/media/icon.png'})
+    elif action == 'calendar':
+        list_item.setInfo('video', {'title': name, 'plot': 'See your airing calendar.'})
+        list_item.setArt({'icon': 'special://home/addons/plugin.video.maltracker/resources/media/icon.png'})
+    else:
+        list_item.setInfo('video', {'title': name})
+        list_item.setArt({'icon': 'special://home/addons/plugin.video.maltracker/resources/media/icon.png'})
     xbmcplugin.addDirectoryItem(handle=HANDLE, url=url, listitem=list_item, isFolder=True)
 
-def router(params):
-    action = params.get('action')
-    if action == 'my_list':
-        my_list()
-    elif action == 'export_data':
-        export_data()
-    elif action == 'import_data':
-        import_data()
-    elif action == 'search':
-        search()
-    elif action == 'manual_log':
-        manual_log(params)
-    elif action == 'details':
-        show_details(params)
-    elif action == 'mark_watched':
-        mark_watched(params)
-    elif action == 'change_status':
-        change_status(params)
-    elif action == 'sync_check':
-        sync_check()
-    elif action == 'calendar':
-        show_calendar()
-    elif action == 'import_alfa':
-        importar_alfa()
-    elif action == 'import_balandro':
-        importar_balandro()
-    elif action == 'stats':
-        show_stats()
-    elif action == 'help':
-        show_help()
-    elif action == 'import_api_config':
-        import_api_config()
-    elif action == 'login_mal':
-        login_mal()
-    else:
-        main_menu()
+
 
 # --- INICIAR SESIÓN MANUAL MAL ---
 def login_mal():
@@ -434,6 +488,8 @@ def import_api_config():
     if not file_path:
         return
     try:
+        import xbmcaddon
+        addon = xbmcaddon.Addon()
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
         if len(lines) < 2:
@@ -441,15 +497,25 @@ def import_api_config():
             return
         client_id = lines[0].strip()
         client_secret = lines[1].strip()
-        addon = xbmcaddon.Addon()
         addon.setSetting('client_id', client_id)
         addon.setSetting('client_secret', client_secret)
         xbmc.executebuiltin('Notification(MAL Tracker, Configuración importada correctamente)')
     except Exception as e:
         xbmcgui.Dialog().ok('Importar configuración', f'Error al importar configuración:\n{e}')
+
 # --- MENÚ DE AYUDA ---
 def show_help():
-    ayuda = (
+    help_text = (
+        "[B]MAL Tracker - Ayuda rápida[/B]\n\n"
+        "• [B]Iniciar sesión:[/B] Usa 'Login to MyAnimeList' para autorizar el addon con tu cuenta de MAL.\n"
+        "• [B]Sincronización:[/B] El addon actualizará tu lista de MAL automáticamente al ver episodios.\n"
+        "• [B]Cerrar sesión:[/B] Usa 'Logout from MyAnimeList' para desvincular tu cuenta.\n"
+        "• [B]Importar/Exportar:[/B] Puedes importar/exportar tu lista y progreso desde otros addons o archivos.\n"
+        "• [B]Estadísticas y calendario:[/B] Consulta tu progreso y próximos estrenos desde el menú principal.\n\n"
+        "Para más información visita: https://kodi.wiki/view/Add-on_development\n\n"
+        "Si tienes dudas, revisa la documentación oficial de MyAnimeList y Kodi.\n\n"
+    )
+    ayuda_extendida = (
         "[B]Guía de configuración de MAL Tracker[/B]\n\n"
         "1. [B]Crea una cuenta en MyAnimeList:[/B]\n"
         "   - Ve a https://myanimelist.net/register\n\n"
@@ -494,7 +560,7 @@ def show_help():
         "[I]Si tienes problemas de autenticación, revisa que el Client ID y Secret sean correctos, que tu cuenta esté activa y que hayas autorizado el acceso correctamente.[/I]\n"
         "[I]Recuerda que este addon no descarga ni reproduce anime, solo gestiona tu progreso y sincronización con MyAnimeList.[/I]"
     )
-    xbmcgui.Dialog().textviewer('Ayuda y configuración', ayuda)
+    xbmcgui.Dialog().textviewer('MAL Tracker - Ayuda', help_text + ayuda_extendida)
 
 
 # --- PUNTO DE ENTRADA DEL ADDON ---

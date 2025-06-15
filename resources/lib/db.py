@@ -26,13 +26,14 @@ _ADDON_PATH = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('path'))
 # Database file path
 _DB_FILE = os.path.join(xbmcvfs.translatePath('special://userdata/addon_data/plugin.video.maltracker'), 'maltracker.db')
 
-def connect():
-    # Ensure directory exists
-    db_dir = os.path.dirname(_DB_FILE)
-    if not os.path.exists(db_dir):
-        os.makedirs(db_dir)
 
-    # Connect to database
+def connect():
+    # Asegurar que el directorio existe usando xbmcvfs
+    db_dir = os.path.dirname(_DB_FILE)
+    if not xbmcvfs.exists(db_dir):
+        xbmcvfs.mkdirs(db_dir)
+
+    # Conectar a la base de datos
     conn = sqlite3.connect(_DB_FILE)
     return conn
 
